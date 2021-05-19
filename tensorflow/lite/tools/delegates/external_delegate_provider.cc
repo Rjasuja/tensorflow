@@ -111,7 +111,10 @@ TfLiteDelegatePtr ExternalDelegateProvider::CreateTfLiteDelegate(
       }
     }
 
+    TFLITE_LOG(INFO) << "TfLiteExternalDelegateCreate before" << "\n";
     auto external_delegate = TfLiteExternalDelegateCreate(&delegate_options);
+    TFLITE_LOG(INFO) << "TfLiteExternalDelegateCreate" << "\n";
+
     return TfLiteDelegatePtr(external_delegate, [](TfLiteDelegate* delegate) {
       TfLiteExternalDelegateDelete(delegate);
     });
