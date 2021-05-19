@@ -399,6 +399,7 @@ cc_library(
         ":string",
         ":type_to_tflitetype",
         ":util",
+        "//tensorflow/lite/delegates/openvino:openvino_delegate",
         "//tensorflow/lite/c:common",
         "//tensorflow/lite/core/api",
         "//tensorflow/lite/core/api:verifier",
@@ -673,6 +674,20 @@ cc_library(
     deps = [
         "//tensorflow/lite/c:common",
         "//tensorflow/lite/delegates/xnnpack:xnnpack_delegate",
+    ],
+    alwayslink = 1,
+)
+
+# Link this library to inject OpenVINO delegate to TFLite runtime automatically
+# by utilizing the weak symbols if they're supported by the platform.
+cc_library(
+    name = "tflite_with_openvino",
+    srcs = ["tflite_with_openvino.cc"],
+    copts = tflite_copts() + tflite_copts_warnings(),
+    linkstatic = True,
+    deps = [
+        "//tensorflow/lite/c:common",
+        "//tensorflow/lite/delegates/openvino:openvino_delegate",
     ],
     alwayslink = 1,
 )

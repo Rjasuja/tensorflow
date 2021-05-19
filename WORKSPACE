@@ -21,3 +21,7 @@ tf_workspace1()
 load("@//tensorflow:workspace0.bzl", "tf_workspace0")
 
 tf_workspace0()
+
+load("//third_party:openvino/openvino.bzl", "openvino_configure")
+
+openvino_configure(name = "intel_openvino")
