@@ -36,14 +36,11 @@ limitations under the License.
 #include "tensorflow/lite/builtin_ops.h"
 #include "tensorflow/lite/c/builtin_op_data.h"
 #include "tensorflow/lite/c/common.h"
-#include "tensorflow/lite/core/api/profiler.h"
 #include "tensorflow/lite/kernels/internal/compatibility.h"
 #include "tensorflow/lite/kernels/internal/tensor_ctypes.h"
 #include "tensorflow/lite/kernels/internal/utils/sparsity_format_converter.h"
-#include "tensorflow/lite/kernels/kernel_util.h"
 #include "tensorflow/lite/kernels/padding.h"
 #include "tensorflow/lite/minimal_logging.h"
-#include "tensorflow/lite/tools/optimize/reduced_precision_support.h"
 
 namespace tflite {
 namespace openvino {
@@ -101,10 +98,11 @@ class NgraphNodes {
  private:
     std::vector<ov::Output<ov::Node>> outputAtOperandIndex = {};
  public:
+    NgraphNodes() {}
     //REVISIT: Decide on the data type of index passed in these calls
     void setOutputAtOperandIndex(int index, ov::Output<ov::Node> output);
     ov::Output<ov::Node> getOperationOutput(int index);
-    ov::Output<ov::Node> getInputNode(TfLiteTensor& tensor, int tensor_index);
+    ov::Output<ov::Node> getInputNode(const TfLiteTensor& tensor, int tensor_index);
     std::shared_ptr<ov::Node> createConstNode(ov::element::Type elementType, ov::Shape shape,
 		                              const void* data) {
 	    return std::make_shared<ov::opset8::Constant>(elementType, shape, data);
@@ -119,7 +117,7 @@ ov::Output<ov::Node> NgraphNodes::getOperationOutput(int index) {
     return outputAtOperandIndex[index];
 }
 
-ov::Output<ov::Node> NgraphNodes::getInputNode(TfLiteTensor& tensor, int tensor_index) {
+ov::Output<ov::Node> NgraphNodes::getInputNode(const TfLiteTensor& tensor, int tensor_index) {
     std::shared_ptr<ov::Node> input;
     if (tensor.type == kTfLiteFloat32) {
        ov::element::Type elementType;
@@ -139,16 +137,14 @@ ov::Output<ov::Node> NgraphNodes::getInputNode(TfLiteTensor& tensor, int tensor_
     return input;
 }
 
-void addInputParams(const TfLiteContext* context, const int index) {
-    const TfLiteTensor t = context->tensors[index];
-    std::vector<size_t> dims(t.dims->data[0], t.dims->data[NumDimensions(&t)]);
-    auto input = std::make_shared<ov::opset3::Parameter>(ov::element::f32, ov::Shape(dims.begin(), dims.end()));
-    inputParams.insert(input);
-    ngraphNodes->setOutputAtOperandIndex(index, input);
-}
-
 class Subgraph {
+ private:
+  inline static NgraphNodes* ngraphNodes = new NgraphNodes();
+  inline static std::vector<std::shared_ptr<ov::opset3::Parameter>> inputParams = {};
+  inline static std::vector<std::shared_ptr<ov::Node>> resultNodes = {};
+  inline static ov::InferRequest inferRequest;
  public:
+//  static std::shared_ptr<NgraphNodes> getNgraphNodes() { return NgraphNodes(); }
   static Subgraph* Create(TfLiteContext* context,
                           const TfLiteDelegateParams* params,
                           const Delegate& delegate) {
@@ -162,7 +158,9 @@ class Subgraph {
       outputs.insert(output_tensor_idx);
     }
     for (auto i = inputs.begin(); i != inputs.end(); i++)
-        addInputParams(context, i);
+        addInputParams(context, *i);
+
+//    ngraphNodes = new NgraphNodes();
 
     TfLiteIntArray* execution_plan;
     if (context->GetExecutionPlan(context, &execution_plan) != kTfLiteOk) {
@@ -262,7 +260,7 @@ class Subgraph {
 
       for(int i = 0; i <= node->outputs->size; i++) {
         const int t = node->outputs->data[i];
-        resultNodes.insert(getOperationOutput(t));
+        resultNodes.push_back(ngraphNodes->getOperationOutput(t).get_node_shared_ptr());
       }
     }
 
@@ -310,6 +308,14 @@ class Subgraph {
     }
 
     return kTfLiteOk;
+  }
+
+  static void addInputParams(const TfLiteContext* context, const int index) {
+      const TfLiteTensor t = context->tensors[index];
+      std::vector<size_t> dims(t.dims->data[0], t.dims->data[t.dims->size]);
+      auto input = std::make_shared<ov::opset3::Parameter>(ov::element::f32, ov::Shape(dims.begin(), dims.end()));
+      inputParams.push_back(input);
+      ngraphNodes->setOutputAtOperandIndex(index, input);
   }
 
   static TfLiteStatus CheckTensorNonDynamicAllocation(
@@ -454,7 +460,7 @@ class Subgraph {
     }
   }
 
-  std::shared_ptr<ov::Node> ApplyActivation(std::shared_ptr<ov::Node> input, TfLiteFusedActivation activation) {
+  static std::shared_ptr<ov::Node> ApplyActivation(std::shared_ptr<ov::Node> input, TfLiteFusedActivation activation) {
     switch (activation) {
       case kTfLiteActNone:
         return input;
@@ -534,11 +540,10 @@ class Subgraph {
         graph_inputs_(graph_inputs),
         graph_outputs_(graph_outputs) {
     for (int t : graph_outputs) {
-        t = nullptr;
+        t = NULL;
     }
   }
 
-  std::shared_ptr<NgraphNodes> ngraphNodes;
   const std::shared_ptr<const ov::Model> model_;
   std::unordered_set<int> graph_outputs_;
   std::unordered_set<int> graph_inputs_;
@@ -546,11 +551,6 @@ class Subgraph {
   // Memory location to use for 0-size extenal tensors, as TFLite init their
   // data pointer to nullptr, and OpenVINO requires valid data pointers.
   char dummy_data_{0};
-  void addInputParams(const TfLiteContext* context, const int index);
-  void addResultNode(const TfLiteContext* context, const int index);
-  std::vector<std::shared_ptr<ov::opset3::Parameter>> inputParams;
-  std::vector<std::shared_ptr<ov::Node>> resultNodes;
-  ov::InferRequest inferRequest;
 };
 
 TfLiteIntArray* Delegate::PrepareOpsToDelegate(TfLiteContext* context) {

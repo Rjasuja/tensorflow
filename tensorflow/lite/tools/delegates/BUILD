@@ -47,6 +47,7 @@ cc_library(
         ":hexagon_delegate_provider",
         ":nnapi_delegate_provider",
         ":xnnpack_delegate_provider",
+        ":openvino_delegate_provider",
     ],
     alwayslink = 1,
 )
@@ -156,6 +157,19 @@ cc_library(
 cc_library(
     name = "xnnpack_delegate_provider",
     srcs = ["xnnpack_delegate_provider.cc"],
+    copts = tflite_copts(),
+    linkstatic = True,
+    visibility = ["//visibility:public"],
+    deps = [
+        ":delegate_provider_hdr",
+        "//tensorflow/lite/tools/evaluation:utils",
+    ],
+    alwayslink = 1,
+)
+
+cc_library(
+    name = "openvino_delegate_provider",
+    srcs = ["openvino_delegate_provider.cc"],
     copts = tflite_copts(),
     linkstatic = True,
     visibility = ["//visibility:public"],

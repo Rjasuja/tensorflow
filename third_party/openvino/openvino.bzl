@@ -12,7 +12,7 @@ cc_library(
     name = "openvino",
     hdrs = glob(["openvino/include/ie"]),
     srcs = ["openvino/lib64/libopenvino.so",
-            "openvino/lib64/libopenvino.so.2023.0.1"],
+            "openvino/lib64/libopenvino.so.2023.0.2"],
     includes = ["openvino/runtime/include/ie/cpp",
                 "openvino/runtime/include/ie",
                 "openvino/runtime/include"],

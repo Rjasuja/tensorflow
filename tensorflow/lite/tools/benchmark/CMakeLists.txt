@@ -54,6 +54,16 @@ else()
   set(TFLITE_BENCHMARK_CC_OPTIONS "-DTFLITE_WITHOUT_XNNPACK")
 endif()  # TFLITE_ENABLE_XNNPACK
 
+if(TFLITE_ENABLE_OPENVINO)
+  message(STATUS "Openvino sources enabled ********************************************************************************************")
+  list(APPEND TFLITE_BENCHMARK_SRCS
+    ${TFLITE_SOURCE_DIR}/tools/delegates/openvino_delegate_provider.cc
+  )
+else()
+  set(TFLITE_BENCHMARK_CC_OPTIONS "-DTFLITE_WITHOUT_OPENVINO")
+endif()  # TFLITE_ENABLE_OPENVINO
+
+
 if(CMAKE_SYSTEM_NAME MATCHES "Android")
   if(_TFLITE_ENABLE_NNAPI)
     list(APPEND TFLITE_BENCHMARK_SRCS
@@ -83,3 +93,9 @@ target_compile_options(benchmark_model
 target_link_libraries(benchmark_model
     ${TFLITE_BENCHMARK_LIBS}
 )
+
+if(TFLITE_ENABLE_OPENVINO)
+  target_link_libraries(benchmark_model
+    $ENV{OPENVINO_NATIVE_DIR}/lib64/libopenvino.so
+  )
+#endif()

@@ -187,6 +187,20 @@ TfLiteDelegatePtr CreateXNNPACKDelegate(
   });
 }
 
+TfLiteDelegatePtr CreateOPENVINODelegate() {
+  TfLiteOpenVINODelegateOptions openvino_options =
+      TfLiteOpenVINODelegateOptionsDefault();
+  return CreateOPENVINODelegate(&openvino_options);
+}
+
+TfLiteDelegatePtr CreateOPENVINODelegate(
+    const TfLiteOpenVINODelegateOptions* openvino_options) {
+  auto openvino_delegate = TfLiteOpenVINODelegateCreate(openvino_options);
+  return TfLiteDelegatePtr(openvino_delegate, [](TfLiteDelegate* delegate) {
+    TfLiteOpenVINODelegateDelete(delegate);
+  });
+}
+
 TfLiteDelegatePtr CreateXNNPACKDelegate(int num_threads) {
   auto opts = TfLiteXNNPackDelegateOptionsDefault();
   // Note that we don't want to use the thread pool for num_threads == 1.

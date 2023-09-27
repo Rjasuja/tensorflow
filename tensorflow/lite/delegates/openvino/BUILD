@@ -35,7 +35,7 @@ cc_library(
         "//tensorflow/lite/kernels/internal:compatibility",
         "//tensorflow/lite/kernels/internal:tensor",
         "//tensorflow/lite/kernels/internal/utils:sparsity_format_converter",
-        "//tensorflow/lite/delegates/utils:simple_delegate",
+#        "//tensorflow/lite/delegates/utils:simple_delegate",
         "@intel_openvino//:openvino",
     ],
 )
