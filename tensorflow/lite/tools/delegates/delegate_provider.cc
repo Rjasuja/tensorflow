@@ -59,13 +59,17 @@ ProvidedDelegateList::CreateAllRankedDelegates(const ToolParams& params) const {
     info.delegate = std::move(ptr_rank.first);
     info.rank = ptr_rank.second;
     delegates.emplace_back(std::move(info));
+    TFLITE_LOG(INFO) << provider->GetName() << "11111111111111111111111111111111111111";
   }
 
+    TFLITE_LOG(INFO) << "22222222222222222";
   std::sort(delegates.begin(), delegates.end(),
             [](const ProvidedDelegateList::ProvidedDelegate& a,
                const ProvidedDelegateList::ProvidedDelegate& b) {
               return a.rank < b.rank;
             });
+
+    TFLITE_LOG(INFO) << "3333333333333333333333333";
 
   return delegates;
 }

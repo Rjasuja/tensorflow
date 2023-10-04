@@ -80,11 +80,15 @@ bool Interpreter::IsCancelled() { return primary_subgraph().IsCancelled(); }
 
 TfLiteStatus Interpreter::ModifyGraphWithDelegate(TfLiteDelegate* delegate) {
   TfLiteStatus status = kTfLiteOk;
+  TFLITE_LOG(TFLITE_LOG_INFO, "came inside ModifyGraphWithDelegate");
   for (auto& subgraph : subgraphs_) {
+    TFLITE_LOG(TFLITE_LOG_INFO, "validating subgraphs");
     if (IsValidationSubgraph(subgraph->GetName().c_str())) {
+      TFLITE_LOG(TFLITE_LOG_INFO, "validatd subgraph");
       continue;
     }
     status = subgraph->ModifyGraphWithDelegate(delegate);
+    TFLITE_LOG(TFLITE_LOG_INFO, "subgraph ModifyGraphWithDelegate");
     if (status != kTfLiteOk) {
       break;
     }

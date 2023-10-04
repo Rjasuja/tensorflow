@@ -716,17 +716,23 @@ TfLiteStatus BenchmarkTfLiteModel::Init() {
   TFLITE_MAY_LOG(INFO, (created_delegates.size() >= 2))
       << "Going to apply " << created_delegates.size()
       << " delegates one after another.";
+  TFLITE_LOG(ERROR) << "Looping through delegates";
   for (auto& created_delegate : created_delegates) {
+    TFLITE_LOG(INFO) << "11111";
     const auto* delegate_provider = created_delegate.provider;
     tools::TfLiteDelegatePtr delegate = std::move(created_delegate.delegate);
+    TFLITE_LOG(INFO) << "111112222";
     TFLITE_TOOLS_CHECK(delegate != nullptr)
         << "The created delegate by the delegate provider should not be "
            "nullptr!";
+    TFLITE_LOG(INFO) << "11111222255555555";
+    TFLITE_LOG(INFO) << "11111222255555555" << delegate.get();;
     if (interpreter_->ModifyGraphWithDelegate(delegate.get()) != kTfLiteOk) {
       TFLITE_LOG(ERROR) << "Failed to apply " << delegate_provider->GetName()
                         << " delegate.";
       return kTfLiteError;
     } else {
+    TFLITE_LOG(INFO) << "11111222233333";
       // Ideally, such delegate info should already be computed when the
       // delegate is being applied to the model graph.
       int num_delegated_kernels = 0;
@@ -735,6 +741,7 @@ TfLiteStatus BenchmarkTfLiteModel::Init() {
         if (checked_node_ids.find(node_id) != checked_node_ids.end()) {
           continue;
         }
+    TFLITE_LOG(INFO) << "111112222333334444";
         const TfLiteNode& node =
             interpreter_->node_and_registration(node_id)->first;
 

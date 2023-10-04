@@ -59,6 +59,8 @@ class Delegate {
 
     options_ =
         options != nullptr ? *options : TfLiteOpenVINODelegateOptionsDefault();
+    TFLITE_LOG_PROD_ONCE(tflite::TFLITE_LOG_INFO,
+                         "C**************");
   }
 
   TfLiteIntArray* PrepareOpsToDelegate(TfLiteContext* context);
