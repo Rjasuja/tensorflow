@@ -15,10 +15,11 @@ limitations under the License.
 #ifndef TENSORFLOW_LITE_DELEGATES_OPENVINO_DELEGATE_H_
 #define TENSORFLOW_LITE_DELEGATES_OPENVINO_DELEGATE_H_
 
+
 #include "tensorflow/lite/c/common.h"
 #include "tensorflow/lite/minimal_logging.h"
 #include "tensorflow/lite/tools/logging.h"
-
+#include "openvino_delegate_kernel.h"
 
 #ifdef __cplusplus
 extern "C" {
