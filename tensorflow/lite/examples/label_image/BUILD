@@ -25,7 +25,10 @@ cc_binary(
             "-lm",  # some builtin ops, e.g., tanh, need -lm
             "-Wl,-rpath=/data/local/tmp",  # for hexagon delegate
         ],
-        "//conditions:default": [],
+        "//conditions:default": [
+            "-lEGL",
+            "-lGLESv2",
+        ],
     }),
     deps = [
         ":bitmap_helpers",
@@ -68,7 +71,9 @@ cc_library(
             "//tensorflow/lite/delegates/gpu:delegate",
             "//tensorflow/lite/delegates/hexagon:hexagon_delegate",
         ],
-        "//conditions:default": [],
+        "//conditions:default": [
+            "//tensorflow/lite/delegates/gpu:delegate",
+        ],
     }),
 )
 

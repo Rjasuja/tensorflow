@@ -105,8 +105,6 @@ def workspace():
 
     rules_cc_toolchains()
 
-    bazel_toolchains_repositories()
-
     # Use `swift_rules_dependencies` to fetch the toolchains. With the
     # `git_repository` rules above, the following call will skip redefining them.
     swift_rules_dependencies()

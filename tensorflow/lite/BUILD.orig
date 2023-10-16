@@ -1188,8 +1188,6 @@ tflite_cc_shared_object(
         "//conditions:default": [
             "-Wl,-z,defs",
             "-Wl,--version-script,$(location //tensorflow/lite:tflite_version_script.lds)",
-            "-lEGL",
-            "-lGLESv2",
         ],
     }),
     per_os_targets = True,
@@ -1198,7 +1196,6 @@ tflite_cc_shared_object(
         ":tflite_exported_symbols.lds",
         ":tflite_version_script.lds",
         "//tensorflow/lite/kernels:builtin_ops_all_linked",
-        "//tensorflow/lite/delegates/gpu:delegate",
     ],
 )
 

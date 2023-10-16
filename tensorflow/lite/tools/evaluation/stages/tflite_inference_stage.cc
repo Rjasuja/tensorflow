@@ -126,6 +126,8 @@ TfLiteStatus TfliteInferenceStage::Init(
       apply_default_delegates
           ? new ops::builtin::BuiltinOpResolver()
           : new ops::builtin::BuiltinOpResolverWithoutDefaultDelegates());
+  TfLiteRegistration reg = { nullptr, nullptr, nullptr, nullptr };
+  resolver_->AddCustom("Convolution2DTransposeBias", &reg);
   InterpreterBuilder(*model_, *resolver_)(&interpreter_);
   if (!interpreter_) {
     LOG(ERROR) << "Could not build interpreter";

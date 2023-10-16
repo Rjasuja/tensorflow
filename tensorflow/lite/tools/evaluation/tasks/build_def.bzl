@@ -10,5 +10,8 @@ def task_linkopts():
             # Hexagon delegate libraries should be in /data/local/tmp
             "-Wl,--rpath=/data/local/tmp/",
         ],
-        "//conditions:default": [],
+        "//conditions:default": [
+            "-lEGL",
+            "-lGLESv2"
+	],
     })

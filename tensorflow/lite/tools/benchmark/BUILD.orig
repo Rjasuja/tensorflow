@@ -36,10 +36,7 @@ cc_binary(
             "-lm",  # some builtin ops, e.g., tanh, need -lm
             "-Wl,--rpath=/data/local/tmp/",  # Hexagon delegate libraries should be in /data/local/tmp
         ],
-        "//conditions:default": [
-            "-lEGL",
-            "-lGLESv2",
-        ],
+        "//conditions:default": [],
     }),
     tags = ["builder_default_android_arm64"],
     deps = [
@@ -196,9 +193,7 @@ cc_library(
         "//tensorflow:android": [
             "//tensorflow/lite/delegates/gpu:delegate",
         ],
-        "//conditions:default": [
-            "//tensorflow/lite/delegates/gpu:delegate",
-        ],
+        "//conditions:default": [],
     }),
 )
 

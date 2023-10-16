@@ -78,12 +78,8 @@ cc_library(
     deps = [
         ":delegate_provider_hdr",
         "//tensorflow/lite/tools/evaluation:utils",
+        "//tensorflow/lite/delegates/gpu:delegate",
     ] + select({
-        "//tensorflow/lite/delegates/gpu:supports_gpu_delegate": [
-            "//tensorflow/lite/delegates/gpu:delegate",
-        ],
-        "//conditions:default": [],
-    }) + select({
         "//tensorflow:ios": [
             "//tensorflow/lite/delegates/gpu:metal_delegate",
         ],
@@ -117,6 +113,7 @@ cc_library(
     deps = [
         ":delegate_provider_hdr",
         "//tensorflow/lite/tools/evaluation:utils",
+        "//tensorflow/lite/delegates/gpu:delegate",
     ] + select({
         "//tensorflow:arm_any": [
             "//tensorflow/lite/delegates/hexagon:hexagon_delegate",
@@ -141,6 +138,7 @@ cc_library(
     deps = [
         ":delegate_provider_hdr",
         "//tensorflow/lite/tools/evaluation:utils",
+        "//tensorflow/lite/delegates/gpu:delegate",
     ] + select({
         "//tensorflow:ios": [
             "//tensorflow/lite/delegates/coreml:coreml_delegate",
@@ -162,6 +160,7 @@ cc_library(
     deps = [
         ":delegate_provider_hdr",
         "//tensorflow/lite/tools/evaluation:utils",
+        "//tensorflow/lite/delegates/gpu:delegate",
     ],
     alwayslink = 1,
 )

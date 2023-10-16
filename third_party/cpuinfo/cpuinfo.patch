@@ -1,0 +1,14 @@
+diff --git a/src/arm/linux/cp.h b/src/arm/linux/cp.h
+index 63940ec..9403a65 100644
+--- a/src/arm/linux/cp.h
++++ b/src/arm/linux/cp.h
+@@ -37,8 +37,6 @@
+ 	#endif
+
+ 	static inline uint32_t read_wcid(void) {
+-		uint32_t wcid;
+-		__asm__ __volatile__("MRC p1, 0, %[wcid], c0, c0" : [wcid] "=r" (wcid));
+-		return wcid;
++		return 0;
+ 	}
+ #endif
