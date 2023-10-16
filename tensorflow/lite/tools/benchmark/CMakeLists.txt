@@ -66,6 +66,16 @@ if(CMAKE_SYSTEM_NAME MATCHES "Android")
   )
 endif()  # Android
 
+if(TFLITE_ENABLE_OPENVINO)
+  message(STATUS "Openvino sources enabled ********************************************************************************************")
+  list(APPEND TFLITE_BENCHMARK_SRCS
+    ${TFLITE_SOURCE_DIR}/tools/delegates/openvino_delegate_provider.cc
+  )
+else()
+  set(TFLITE_BENCHMARK_CC_OPTIONS "-DTFLITE_WITHOUT_OPENVINO")
+endif()  # TFLITE_ENABLE_OPENVINO
+
+
 if(TFLITE_ENABLE_GPU)
   list(APPEND TFLITE_BENCHMARK_SRCS
     ${TFLITE_SOURCE_DIR}/tools/delegates/gpu_delegate_provider.cc
@@ -83,3 +93,9 @@ target_compile_options(benchmark_model
 target_link_libraries(benchmark_model
     ${TFLITE_BENCHMARK_LIBS}
 )
+if(TFLITE_ENABLE_OPENVINO)
+  target_link_libraries(benchmark_model
+    $ENV{OPENVINO_NATIVE_DIR}/lib64/libopenvino.so
+  )
+endif()
+

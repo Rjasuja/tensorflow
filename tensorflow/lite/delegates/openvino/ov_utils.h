@@ -1,4 +1,8 @@
+#ifndef TENSORFLOW_LITE_DELEGATES_OV_UTILS_H_
+#define TENSORFLOW_LITE_DELEGATES_OV_UTILS_H_
 #include "tensorflow/lite/c/common.h"
+#include "tensorflow/lite/c/builtin_op_data.h"
+#include "tensorflow/lite/builtin_ops.h"
 
 namespace tflite {
 
@@ -8,3 +12,4 @@ bool CheckNodeSupportByOpenVINO(const TfLiteRegistration* registration,
                                          TfLiteContext* context);
 
 }
+#endif  // TENSORFLOW_LITE_DELEGATES_OV_UTILS_H_

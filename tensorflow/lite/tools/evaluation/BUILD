@@ -43,6 +43,7 @@ cc_library(
         "//tensorflow/lite/c:common",
         "//tensorflow/lite/delegates/nnapi:nnapi_delegate",
         "//tensorflow/lite/delegates/gpu:delegate",
+        "//tensorflow/lite/delegates/openvino:openvino_delegate",
     ] + select({
         "//tensorflow:arm_any": [
             "//tensorflow/lite/delegates/hexagon:hexagon_delegate",

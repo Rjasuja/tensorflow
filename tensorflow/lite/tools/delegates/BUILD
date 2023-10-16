@@ -45,8 +45,9 @@ cc_library(
         ":external_delegate_provider",
         ":gpu_delegate_provider",
         ":hexagon_delegate_provider",
-        ":nnapi_delegate_provider",
+#        ":nnapi_delegate_provider",
         ":xnnpack_delegate_provider",
+        ":openvino_delegate_provider",
     ],
     alwayslink = 1,
 )
@@ -164,6 +165,22 @@ cc_library(
     ],
     alwayslink = 1,
 )
+
+cc_library(
+    name = "openvino_delegate_provider",
+    srcs = ["openvino_delegate_provider.cc"],
+    copts = tflite_copts(),
+    linkstatic = True,
+    visibility = ["//visibility:public"],
+    deps = [
+        ":delegate_provider_hdr",
+	"//tensorflow/lite/delegates/openvino:openvino_delegate",
+        "//tensorflow/lite/tools/evaluation:utils",
+      #  "@intel_openvino//:openvino",
+    ],
+    alwayslink = 1,
+)
+
 
 cc_library(
     name = "external_delegate_provider",

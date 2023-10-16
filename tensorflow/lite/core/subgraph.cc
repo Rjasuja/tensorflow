@@ -294,6 +294,9 @@ void Subgraph::CleanupNode(int node_index) {
 TfLiteStatus Subgraph::ReplaceNodeSubsetsWithDelegateKernels(
     TfLiteContext* context, TfLiteRegistration registration,
     const TfLiteIntArray* nodes_to_replace, TfLiteDelegate* delegate) {
+  TFLITE_LOG_PROD(
+      tflite::TFLITE_LOG_INFO,
+      "Inside ReplaceNodeSubsetsWithDelegateKernels \n")
   return static_cast<Subgraph*>(context->impl_)
       ->ReplaceNodeSubsetsWithDelegateKernels(registration, nodes_to_replace,
                                               delegate);
@@ -396,6 +399,9 @@ void PopulatePreviewDelegateParams(const NodeSubset& node_subset,
 TfLiteStatus Subgraph::ReplaceNodeSubsetsWithDelegateKernels(
     TfLiteRegistration registration, const TfLiteIntArray* nodes_to_replace,
     TfLiteDelegate* delegate) {
+  TFLITE_LOG_PROD(
+      tflite::TFLITE_LOG_INFO,
+      "ReplaceNodeSubsetsWithDelegateKernels implementation called upon \n");
   // Ignore empty node replacement sets.
   if (!nodes_to_replace->size) {
     return kTfLiteOk;
@@ -1725,7 +1731,13 @@ TfLiteStatus Subgraph::ModifyGraphWithDelegate(TfLiteDelegate* delegate) {
 
   // Setup additional context interface.
   SwitchToDelegateContext();
+  TFLITE_LOG(
+          tflite::TFLITE_LOG_WARNING,
+	  "Calling Delegate Prepare function in ModifyGraphWithDelegate\n");
   TfLiteStatus status = delegate->Prepare(&context_, delegate);
+  TFLITE_LOG(
+          tflite::TFLITE_LOG_WARNING,
+	  "Called Delegate Prepare fn in ModifyGraphWithDelegate\n");
   // Remove additional context info.
   SwitchToKernelContext();
   TF_LITE_ENSURE_STATUS(reset_delegation_if_not_ok(status));

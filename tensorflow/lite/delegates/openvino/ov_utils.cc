@@ -1,6 +1,4 @@
 #include "tensorflow/lite/delegates/openvino/ov_utils.h"
-#include "tensorflow/lite/builtin_ops.h"
-#include "tensorflow/lite/c/builtin_op_data.h"
 
 namespace tflite {
 
@@ -13,8 +11,8 @@ bool CheckNodeSupportByOpenVINO(const TfLiteRegistration* registration,
                                          TfLiteContext* context) {
     switch (registration->builtin_code) {
         case kTfLiteBuiltinAdd: {
-            int tensor_id1 = node->tensor->data[0];
-            int tensor_id2 = node->tensor->data[1];
+            int tensor_id1 = node->inputs->data[0];
+            int tensor_id2 = node->inputs->data[1];
             if (CheckInputsType(tensor_id1, context, kTfLiteFloat32) &&
                 CheckInputsType(tensor_id2, context, kTfLiteFloat32))
                 return true;
@@ -23,4 +21,5 @@ bool CheckNodeSupportByOpenVINO(const TfLiteRegistration* registration,
         default:
             return false;
     }
+}
 }

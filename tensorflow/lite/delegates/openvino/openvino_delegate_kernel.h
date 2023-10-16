@@ -1,15 +1,25 @@
+#ifndef TENSORFLOW_LITE_DELEGATES_OPENVINO_DELEGATE_KERNEL_H_
+#define TENSORFLOW_LITE_DELEGATES_OPENVINO_DELEGATE_KERNEL_H_
 #include <vector>
 #include <map>
 #include <ie_cnn_network.h>
 #include <openvino/runtime/core.hpp>
+#include <openvino/opsets/opset3.hpp>
+#include <openvino/pass/manager.hpp>
+#include <openvino/pass/serialize.hpp>
+#include <openvino/openvino.hpp>
+#include "tensorflow/lite/c/common.h"
 
 #include "tensorflow/lite/delegates/utils/simple_delegate.h"
 #include "tensorflow/lite/builtin_ops.h"
-#include "tensorflow/lite/delegates/openvino/NgraphNodes.h"
+#include "tensorflow/lite/tools/logging.h"
+#include "ov_utils.h"
+#include "NgraphNodes.h"
 
 namespace tflite {
 namespace openvinodelegate {
 class OpenVINODelegateKernel : public SimpleDelegateKernelInterface {
+  explicit OpenVINODelegateKernel() {}
   TfLiteStatus Init(TfLiteContext* context,
                             const TfLiteDelegateParams* params) override;
 
@@ -37,3 +47,4 @@ class OpenVINODelegateKernel : public SimpleDelegateKernelInterface {
 };
 }
 }
+#endif  // TENSORFLOW_LITE_DELEGATES_OPENVINO_DELEGATE_KERNEL_H_

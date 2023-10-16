@@ -9,10 +9,12 @@ namespace tflite {
 namespace openvinodelegate {
 class OpenVINODelegate : public SimpleDelegateInterface {
     public:
-    explicit OpenVINODelegate(TfLiteOpenVINODelegateOptions& options)
-        : options_(options) {
-        if (options_ == nullptr)
-            options = TfLiteOpenVINODelegateOptionsDefault();
+    explicit OpenVINODelegate(const TfLiteOpenVINODelegateOptions* options) {
+	options_ = *options;
+        TFLITE_LOG(INFO) << "Openvino delegate object created" << "\n";
+        if (options == nullptr)
+            options_ = TfLiteOpenVINODelegateOptionsDefault();
+        TFLITE_LOG(INFO) << "Openvino delegate options created" << "\n";
         }
 
     bool IsNodeSupportedByDelegate(const TfLiteRegistration* registration,
@@ -31,40 +33,36 @@ class OpenVINODelegate : public SimpleDelegateInterface {
 
     std::unique_ptr<SimpleDelegateKernelInterface>
                     CreateDelegateKernelInterface() override {
-        return std::unique_ptr<OpenVINODelegateKernel>(options_);
+        TFLITE_LOG(INFO) << "Creating OpenVINO delegate kernel\n";
+        return std::unique_ptr<OpenVINODelegateKernel>();
     }
 
-    SimpleDelegateInterface::Options DelegateOptions() const override {
-        auto options = SimpleDelegateInterface::Options();
-        options.min_nodes_per_partition = 1;
-        options.max_delegated_partitions = 2;
-    }
+  SimpleDelegateInterface::Options DelegateOptions() const override {
+    auto options = SimpleDelegateInterface::Options();
+    return options;
+  }
+
+
     private:
         TfLiteOpenVINODelegateOptions options_;
         //std::string device_type;
 
 }; 
+}
+}
 
-TfLiteDelegate* TfLiteCreateOpenVINODelegate(TfLiteOpenVINODelegateOptions& options) {
-    auto ovdelegate_ = std::make_unique<OpenVINODelegate>(options);
+TfLiteDelegate* TFL_CAPI_EXPORT TfLiteCreateOpenVINODelegate(const TfLiteOpenVINODelegateOptions* options) {
+    auto ovdelegate_ = std::make_unique<tflite::openvinodelegate::OpenVINODelegate>(options);
     return tflite::TfLiteDelegateFactory::CreateSimpleDelegate(std::move(ovdelegate_));
-    /* auto delegate = new TfLiteDelegate();
-    delegate->Prepare = &DelegatePrepare;
-    delegate->flags = flag;
-    delegate->CopyFromBufferHandle = nullptr;
-    delegate->CopyToBufferHandle = nullptr;
-    delegate->FreeBufferHandle = nullptr;
-    delegate->data_ = simple_delegate.release();
-    return delegate; */
 }
 
 void TFL_CAPI_EXPORT TfLiteDeleteOpenVINODelegate(TfLiteDelegate* delegate) {
     return;
 }
 
-TfLiteOpenVINODelegateOptions TfLiteOpenVINODelegateOptionsDefault() {
-    TfLiteOpenVINODelegateOptions result{0};
+TfLiteOpenVINODelegateOptions TFL_CAPI_EXPORT TfLiteOpenVINODelegateOptionsDefault() {
+    TfLiteOpenVINODelegateOptions result;
+    result.debug_level = 0;
+    result.plugins_path= "";
     return result;
-}
-}
 }

@@ -17,15 +17,15 @@ limitations under the License.
 
 
 #include "tensorflow/lite/c/common.h"
-#include "tensorflow/lite/minimal_logging.h"
-#include "tensorflow/lite/tools/logging.h"
+//#include "tensorflow/lite/minimal_logging.h"
+//#include "tensorflow/lite/tools/logging.h"
 #include "openvino_delegate_kernel.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif  // __cplusplus
 
-typedef struct  {
+struct TFL_CAPI_EXPORT TfLiteOpenVINODelegateOptions {
     /* debug_level for the OpenVINO delegate*/
     int debug_level;
 
@@ -35,11 +35,11 @@ typedef struct  {
     /* Device for OpenVINO to select 
         Currently we support CPU and NPU
     char* device_type*/;
-} TfLiteOpenVINODelegateOptions;
+};
 
-TfLiteOpenVINODelegateOptions TfLiteOpenVINODelegateOptionsDefault();
+TfLiteOpenVINODelegateOptions TFL_CAPI_EXPORT TfLiteOpenVINODelegateOptionsDefault();
 
-TFL_CAPI_EXPORT TfLiteDelegate* TfLiteCreateOpenVINODelegate(TfLiteOpenVINODelegateOptions& options);
+TfLiteDelegate* TFL_CAPI_EXPORT TfLiteCreateOpenVINODelegate(const TfLiteOpenVINODelegateOptions* options);
 
 void TFL_CAPI_EXPORT TfLiteDeleteOpenVINODelegate(TfLiteDelegate* delegate);
 

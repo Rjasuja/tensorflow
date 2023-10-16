@@ -37,6 +37,7 @@ TfLiteRegistration GetDelegateKernelRegistration(
   kernel_registration.free = [](TfLiteContext* context, void* buffer) -> void {
     delete reinterpret_cast<SimpleDelegateKernelInterface*>(buffer);
   };
+  TFLITE_LOG_PROD_ONCE(tflite::TFLITE_LOG_INFO, "registering init function\n");
   kernel_registration.init = [](TfLiteContext* context, const char* buffer,
                                 size_t length) -> void* {
     const TfLiteDelegateParams* params =
@@ -45,11 +46,18 @@ TfLiteRegistration GetDelegateKernelRegistration(
       TF_LITE_KERNEL_LOG(context, "NULL TfLiteDelegateParams passed.");
       return nullptr;
     }
+  TFLITE_LOG_PROD_ONCE(tflite::TFLITE_LOG_INFO, "delegate object creation called\n");
     auto* delegate =
         reinterpret_cast<SimpleDelegateInterface*>(params->delegate->data_);
+  TFLITE_LOG_PROD_ONCE(tflite::TFLITE_LOG_INFO, "delegate object created\n");
     std::unique_ptr<SimpleDelegateKernelInterface> delegate_kernel(
         delegate->CreateDelegateKernelInterface());
+  TFLITE_LOG_PROD_ONCE(tflite::TFLITE_LOG_INFO, "delegate kernel object created\n");
+  TFLITE_LOG_PROD_ONCE(tflite::TFLITE_LOG_INFO, "delegate kernel object 1111111111\n");
+  if(delegate_kernel == nullptr)
+	  TFLITE_LOG_PROD_ONCE(tflite::TFLITE_LOG_INFO, "delegate kernel object is null\n");
     if (delegate_kernel->Init(context, params) != kTfLiteOk) {
+  TFLITE_LOG_PROD_ONCE(tflite::TFLITE_LOG_INFO, "delegate kernel object creation failed\n");
       return nullptr;
     }
     return delegate_kernel.release();
@@ -105,6 +113,8 @@ TfLiteStatus DelegatePrepare(TfLiteContext* context,
                        helper.num_total_nodes(), helper.num_partitions());
   TfLiteRegistration delegate_kernel_registration =
       GetDelegateKernelRegistration(delegate);
+  TFLITE_LOG_PROD_ONCE(tflite::TFLITE_LOG_INFO,
+		       "Delegate Kernel Registration called \n");
 
   return context->ReplaceNodeSubsetsWithDelegateKernels(
       context, delegate_kernel_registration,

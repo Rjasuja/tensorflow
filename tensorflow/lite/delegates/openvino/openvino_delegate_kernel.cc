@@ -4,10 +4,10 @@
 namespace tflite {
 namespace openvinodelegate {
 
-class OpenVINODelegateKernel : public SimpleDelegateKernelInterface {
-  TfLiteStatus Init(TfLiteContext* context,
-                            const TfLiteDelegateParams* params) override {
+TfLiteStatus OpenVINODelegateKernel::Init(TfLiteContext* context,
+                            const TfLiteDelegateParams* params) {
     //TODO: REVISIT since this is needed by Eval(), create inputs and outputs object at global level for OpenVINODelegateKernel class
+        TFLITE_LOG(ERROR) << "Openvino delegate Kernel Init function called" << "\n";
     const std::unordered_set<int> inputs(
       &params->input_tensors->data[0],
       &params->input_tensors->data[params->input_tensors->size]);
@@ -17,19 +17,24 @@ class OpenVINODelegateKernel : public SimpleDelegateKernelInterface {
       outputs.insert(output_tensor_idx);
     }
 
+    TFLITE_LOG(INFO) << "Openvino delegate Kernel Ngraph object called" << "\n";
     ngraphNodes = new NgraphNodes();
+    TFLITE_LOG(INFO) << "Openvino delegate Kernel Init function called" << "\n";
 
     for (auto i = inputs.begin(); i != inputs.end(); i++)
         addInputParams(context, *i);
+    TFLITE_LOG(INFO) << "Openvino delegate Kernel Add input params function called" << "\n";
 
+    std::vector<int> tensors(context->tensors_size, -1);
     for (int i = 0; i < params->nodes_to_replace->size; i++) {
       const int node_id = params->nodes_to_replace->data[i];
       TfLiteNode* delegate_node;
       TfLiteRegistration* delegate_node_registration;
-      GetNodeAndRegistration(context, node_id, &delegate_node, 
-                             &delegate_node_registration);
+      if (context->GetNodeAndRegistration(context, node_id, &delegate_node,
+                             &delegate_node_registration))
+	      return kTfLiteError;
       
-      switch (registration->builtin_code) {
+      switch (delegate_node_registration->builtin_code) {
         case kTfLiteBuiltinMean:
         case kTfLiteBuiltinPad:
         case kTfLiteBuiltinReshape:
@@ -38,7 +43,7 @@ class OpenVINODelegateKernel : public SimpleDelegateKernelInterface {
           // because it is represented as parameters of the OpenVINO operator
           // rather than extra input.
           {
-            const int t = node->inputs->data[0];
+            const int t = delegate_node->inputs->data[0];
             tensors[t] = t;
           }
           break;
@@ -46,25 +51,25 @@ class OpenVINODelegateKernel : public SimpleDelegateKernelInterface {
           // Ignore the first input (split_dim), as it is represented as
           // parameters of the OpenVINO operator rather than extra input.
           {
-            const int t = node->inputs->data[1];
+            const int t = delegate_node->inputs->data[1];
             tensors[t] = t;
             break;
           }
         default:
           // All other operators: process all inputs
-          for (int k = 0; k < node->inputs->size; k++) {
-            if (registration->builtin_code == kTfLiteBuiltinTransposeConv &&
+          for (int k = 0; k < delegate_node->inputs->size; k++) {
+            if (delegate_node_registration->builtin_code == kTfLiteBuiltinTransposeConv &&
                 k == 0) {
               // Ignore the output size parameter (see above).
               continue;
             }
-            const int t = node->inputs->data[k];
+            const int t = delegate_node->inputs->data[k];
             if (t >= 0) {
               tensors[t] = t;
             }
           }
-          for (int k = 0; k < node->outputs->size; k++) {
-            const int t = node->outputs->data[k];
+          for (int k = 0; k < delegate_node->outputs->size; k++) {
+            const int t = delegate_node->outputs->data[k];
             if (t >= 0) {
               tensors[t] = t;
             }
@@ -93,20 +98,20 @@ class OpenVINODelegateKernel : public SimpleDelegateKernelInterface {
       const int node_index = params->nodes_to_replace->data[i];
 
       TfLiteNode* node = nullptr;
-      TfLiteRegistration* registration = nullptr;
-      if (context->GetNodeAndRegistration(context, node_index, &node,
-                                          &registration) != kTfLiteOk) {
-        return nullptr;
+      TfLiteRegistration* delegate_node_registration = nullptr;
+      if (context->GetNodeAndRegistration(context, node_index, &delegate_node,
+                                          &delegate_node_registration) != kTfLiteOk) {
+        return kTfLiteError;
       }
 
       //TODO: Complete this implementation
-      if (CreateNode(context, registration, node,
-                    node_index, false)) != kTfLiteOk) {
-        return nullptr;
+      if (CreateNode(context, delegate_node_registration, delegate_node,
+                    node_index) != kTfLiteOk) {
+        return kTfLiteError;
       }
 
-      for(int i = 0; i <= node->outputs->size; i++) {
-        const int t = node->outputs->data[i];
+      for(int i = 0; i <= delegate_node->outputs->size; i++) {
+        const int t = delegate_node->outputs->data[i];
         resultNodes.push_back(ngraphNodes->getOperationOutput(t).get_node_shared_ptr());
       }
     }
@@ -119,8 +124,8 @@ class OpenVINODelegateKernel : public SimpleDelegateKernelInterface {
     //TODO: get device string from flags
     if(model) {
       compiled_model = ie.compile_model(model, deviceStr);
-	    TFLITE_LOG_PROD(tflite::TFLITE_LOG_WARNING,
-			"Network is loaded into device");
+//	    TFLITE_LOG_PROD(tflite::TFLITE_LOG_WARNING,
+//			"Network is loaded into device");
 
 	    ov::pass::Manager manager;
 	    manager.register_pass<ov::pass::Serialize>("/tmp/model.xml", "/tmp/model.bin");
@@ -136,17 +141,17 @@ class OpenVINODelegateKernel : public SimpleDelegateKernelInterface {
       //input_index_map.insert(std::pair(i, node_inputs));
     }
     return kTfLiteOk;
-  }
+}
 
-  TfLiteStatus Prepare(TfLiteContext* context, TfLiteNode* node) override {
+TfLiteStatus OpenVINODelegateKernel::Prepare(TfLiteContext* context, TfLiteNode* node) {
 
-  }
+}
 
-  TfLiteStatus Eval(TfLiteContext* context, TfLiteNode* node) override {
+TfLiteStatus OpenVINODelegateKernel::Eval(TfLiteContext* context, TfLiteNode* node) {
     //TODO: complete this function
-  }
+}
 
-std::shared_ptr<ov::Node> ApplyActivation(std::shared_ptr<ov::Node> input, TfLiteFusedActivation activation) {
+std::shared_ptr<ov::Node> OpenVINODelegateKernel::ApplyActivation(std::shared_ptr<ov::Node> input, TfLiteFusedActivation activation) {
     switch (activation) {
       case kTfLiteActNone:
         return input;
@@ -158,21 +163,21 @@ std::shared_ptr<ov::Node> ApplyActivation(std::shared_ptr<ov::Node> input, TfLit
       case kTfLiteActTanh:
         return std::make_shared<ov::opset3::Tanh>(input);
       case kTfLiteActSignBit:
-        TFLITE_LOG_PROD(tflite::TFLITE_LOG_WARNING,
-            "unsupported fused activation (Sign) in node");
+//        TFLITE_LOG_PROD(tflite::TFLITE_LOG_WARNING,
+//            "unsupported fused activation (Sign) in node");
         return nullptr;
       case kTfLiteActSigmoid:
         return std::make_shared<ov::opset3::Sigmoid>(input);
       default:
-        TFLITE_LOG_PROD(tflite::TFLITE_LOG_WARNING,
-                        "invalid fused activation (%d) in node",
-                        static_cast<int>(activation));
+//        TFLITE_LOG_PROD(tflite::TFLITE_LOG_WARNING,
+//                        "invalid fused activation (%d) in node",
+//                        static_cast<int>(activation));
         return nullptr;
     }
 
 }
 
-void addInputParams(const TfLiteContext* context, const int index) {
+void OpenVINODelegateKernel::addInputParams(const TfLiteContext* context, const int index) {
     const TfLiteTensor t = context->tensors[index];
     std::vector<size_t> dims(t.dims->data[0], t.dims->data[t.dims->size]);
     auto input = std::make_shared<ov::opset3::Parameter>(ov::element::f32, ov::Shape(dims.begin(), dims.end()));
@@ -180,9 +185,11 @@ void addInputParams(const TfLiteContext* context, const int index) {
     ngraphNodes->setOutputAtOperandIndex(index, input);
 }
 
-TfLiteStatus CreateAddNode(TfLiteContext* context, int node_index,
+TfLiteStatus OpenVINODelegateKernel::CreateAddNode(TfLiteContext* context, int node_index,
                       TfLiteNode* node, const TfLiteTensor* tensors,
                       const TfLiteAddParams* add_params) {
+  const TfLiteTensor& input1_tensor = tensors[node->inputs->data[0]];
+  const TfLiteTensor& input2_tensor = tensors[node->inputs->data[1]];
   auto inputNode1 = ngraphNodes->getInputNode(input1_tensor, node->inputs->data[0]);
   auto inputNode2 = ngraphNodes->getInputNode(input2_tensor, node->inputs->data[0]);
   auto addNode = std::make_shared<ov::opset8::Add>(inputNode1, inputNode2, ov::op::AutoBroadcastType::NUMPY);
@@ -190,7 +197,7 @@ TfLiteStatus CreateAddNode(TfLiteContext* context, int node_index,
   ngraphNodes->setOutputAtOperandIndex(node->outputs->data[0], resultNode);
 }
 
-TfLiteStatus CreateNode(TfLiteContext* context,
+TfLiteStatus OpenVINODelegateKernel::CreateNode(TfLiteContext* context,
                       TfLiteRegistration* registration,
                       TfLiteNode* node, int node_index) {
   switch (registration->builtin_code) {
@@ -205,12 +212,5 @@ TfLiteStatus CreateNode(TfLiteContext* context,
         return kTfLiteError;
     }
 }
-  // Map with graph node index as key and vector of input indices at node in key. 
-  std::map<int, std::vector<int>> input_index_map;
-
-  // Map with graph node index as key and vector of output indices at node in key. 
-  std::map<int, std::vector<int>> output_index_map;
-
-};
 }
 }

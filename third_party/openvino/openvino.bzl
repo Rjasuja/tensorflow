@@ -4,9 +4,9 @@ def _openvino_native_impl(repository_ctx):
     repository_ctx.file("BUILD", """
 cc_library(
     name = "openvino",
-    hdrs = glob(["openvino/include/ie"]),
+    hdrs = glob(["openvino/runtime/include", "openvino/runtime/include/ie/cpp", "openvino/runtime/include/ie"]),
     srcs = ["openvino/lib64/libopenvino.so",
-            "openvino/lib64/libopenvino.so.2023.0.0"],
+            "openvino/lib64/libopenvino.so.2023.0.2"],
     includes = ["openvino/runtime/include/ie/cpp",
                 "openvino/runtime/include/ie",
                 "openvino/runtime/include"],

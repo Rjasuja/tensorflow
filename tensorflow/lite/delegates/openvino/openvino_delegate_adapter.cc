@@ -3,7 +3,7 @@
 
 #include "tensorflow/lite/delegates/openvino/openvino_delegate.h"
 #include "tensorflow/lite/tools/command_line_flags.h"
-#include "tensorflow/lite/tools/logging.h"
+//#include "tensorflow/lite/tools/logging.h"
 
 TfLiteDelegate* CreateOVDelegateFromOptions(char** options_keys,
                           char** options_values, 
@@ -41,20 +41,20 @@ TfLiteDelegate* CreateOVDelegateFromOptions(char** options_keys,
     return nullptr;
   }
 
-  TFLITE_LOG(INFO) << "OpenVINO delegate: debug_level set to "
-                   << options.debug_level << ".";
+//  TFLITE_LOG(INFO) << "OpenVINO delegate: debug_level set to "
+//                   << options.debug_level << ".";
   /* TFLITE_LOG(INFO) << "OpenVINO delegate: plugins_path set to "
                    << options.plugins_path << ".";
   TFLITE_LOG(INFO) << "OpenVINO delegate: device_type set to "
                    << options.device_type << "."; */
 
-  return TfLiteCreateOpenVINODelegate(options);
+  return TfLiteCreateOpenVINODelegate(&options);
 }
 
 TFL_CAPI_EXPORT TfLiteDelegate* tflite_plugin_create_delegate(
     char** option_keys, char** option_values, size_t num_options,
     void (&report_error)(const char*)) {
-        TFLITE_LOG(INFO) << "In tfl_plugin_create" << "\n";
+//        TFLITE_LOG(INFO) << "In tfl_plugin_create" << "\n";
         return CreateOVDelegateFromOptions(option_keys, option_values,
                             num_options);
 }

@@ -7,15 +7,6 @@ package(
     licenses = ["notice"],
 )
 
-EMSCRIPTEN_LINKOPTS = [
-    "-s ASSERTIONS=2",
-    "-s ERROR_ON_UNDEFINED_SYMBOLS=1",
-    "-s DEMANGLE_SUPPORT=1",
-    "-s EXIT_RUNTIME=1",
-    "-s ALLOW_MEMORY_GROWTH=1",
-    "-s TOTAL_MEMORY=134217728",
-]
-
 exports_files([
     "openvino_delegate.h",
 ])
@@ -23,23 +14,64 @@ exports_files([
 cc_library(
     name = "openvino_delegate",
     srcs = ["openvino_delegate.cc"],
-    hdrs = ["openvino_delegate.h"],
-    compatible_with = get_compatible_with_portable(),
-    copts = tflite_copts(),
+    hdrs = ["openvino_delegate.h", "openvino_delegate_kernel.h"],
+    tags = [
+        "manual",
+        "nobuilder",
+    ],
     linkstatic = True,
     deps = [
+        ":openvino_delegate_kernel",
         "//tensorflow/lite:kernel_api",
-        "//tensorflow/lite:minimal_logging",
-        "//tensorflow/lite/tools:logging",
+#        "//tensorflow/lite:minimal_logging",
+#        "//tensorflow/lite/tools:logging",
         "//tensorflow/lite/c:common",
         "//tensorflow/lite/kernels:padding",
         "//tensorflow/lite/kernels/internal:compatibility",
         "//tensorflow/lite/kernels/internal:tensor",
-        "//tensorflow/lite/kernels/internal/utils:sparsity_format_converter",
+#        "//tensorflow/lite/kernels/internal/utils:sparsity_format_converter",
         "//tensorflow/lite/delegates/utils:simple_delegate",
         "@intel_openvino//:openvino",
     ],
 )
+
+cc_library(
+    name ="openvino_delegate_kernel",
+    srcs = ["openvino_delegate_kernel.cc", "NgraphNodes.cc"],
+    hdrs = ["openvino_delegate_kernel.h", "NgraphNodes.h"],
+    tags = [
+        "manual",
+        "nobuilder",
+    ],
+    linkstatic = True,
+    deps = [
+        ":ov_utils",
+        "//tensorflow/lite:kernel_api",
+        "//tensorflow/lite/tools:logging",
+        "//tensorflow/lite/c:common",
+        "//tensorflow/lite/core/api",
+        "//tensorflow/lite/delegates/utils:simple_delegate",
+        "//tensorflow/lite/kernels:kernel_util",
+        "@intel_openvino//:openvino",
+    ],
+)
+
+cc_library(
+    name = "ov_utils",
+    srcs = ["ov_utils.cc"],
+    hdrs = ["ov_utils.h"],
+    copts = tflite_copts(),
+    tags = [
+        "manual",
+        "nobuilder",
+    ],
+    deps = [
+        "//tensorflow/lite:kernel_api",
+        "//tensorflow/lite/c:common",
+        "//tensorflow/lite/kernels:kernel_util",
+    ],
+)
+
 
 cc_binary(
     name = "openvino_external_delegate.so",
@@ -74,7 +106,7 @@ cc_library(
     linkstatic = True,
     deps = [
         "//tensorflow/lite:kernel_api",
-        "//tensorflow/lite:minimal_logging",
+#        "//tensorflow/lite:minimal_logging",
         "//tensorflow/lite/c:common",
         "//tensorflow/lite/kernels:padding",
         "//tensorflow/lite/kernels/internal:compatibility",
