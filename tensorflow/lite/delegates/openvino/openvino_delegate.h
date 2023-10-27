@@ -15,36 +15,36 @@ limitations under the License.
 #ifndef TENSORFLOW_LITE_DELEGATES_OPENVINO_DELEGATE_H_
 #define TENSORFLOW_LITE_DELEGATES_OPENVINO_DELEGATE_H_
 
-
-#include "tensorflow/lite/c/common.h"
-//#include "tensorflow/lite/minimal_logging.h"
-//#include "tensorflow/lite/tools/logging.h"
 #include "openvino_delegate_kernel.h"
+#include "tensorflow/lite/c/common.h"
 
 #ifdef __cplusplus
 extern "C" {
-#endif  // __cplusplus
+#endif // __cplusplus
 
 struct TFL_CAPI_EXPORT TfLiteOpenVINODelegateOptions {
-    /* debug_level for the OpenVINO delegate*/
-    int debug_level;
+  /* debug_level for the OpenVINO delegate*/
+  int debug_level;
 
-    /* path for the OpenVINO plugins */
-    char* plugins_path;
+  /* path for the OpenVINO plugins */
+  char *plugins_path;
 
-    /* Device for OpenVINO to select 
-        Currently we support CPU and NPU
-    char* device_type*/;
+  /* Device for OpenVINO to select
+      Currently we support CPU and NPU
+  char* device_type*/
+  ;
 };
 
-TfLiteOpenVINODelegateOptions TFL_CAPI_EXPORT TfLiteOpenVINODelegateOptionsDefault();
+TfLiteOpenVINODelegateOptions TFL_CAPI_EXPORT
+TfLiteOpenVINODelegateOptionsDefault();
 
-TfLiteDelegate* TFL_CAPI_EXPORT TfLiteCreateOpenVINODelegate(const TfLiteOpenVINODelegateOptions* options);
+TfLiteDelegate *TFL_CAPI_EXPORT
+TfLiteCreateOpenVINODelegate(const TfLiteOpenVINODelegateOptions *options);
 
-void TFL_CAPI_EXPORT TfLiteDeleteOpenVINODelegate(TfLiteDelegate* delegate);
+void TFL_CAPI_EXPORT TfLiteDeleteOpenVINODelegate(TfLiteDelegate *delegate);
 
 #ifdef __cplusplus
 }
-#endif  // __cplusplus
+#endif // __cplusplus
 
-#endif  // TENSORFLOW_LITE_DELEGATES_OPENVINO_DELEGATE_H_
+#endif // TENSORFLOW_LITE_DELEGATES_OPENVINO_DELEGATE_H_

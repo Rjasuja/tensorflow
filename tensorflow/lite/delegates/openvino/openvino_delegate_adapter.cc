@@ -1,30 +1,31 @@
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "tensorflow/lite/delegates/openvino/openvino_delegate.h"
 #include "tensorflow/lite/tools/command_line_flags.h"
-//#include "tensorflow/lite/tools/logging.h"
+// #include "tensorflow/lite/tools/logging.h"
 
-TfLiteDelegate* CreateOVDelegateFromOptions(char** options_keys,
-                          char** options_values, 
-                          size_t num_options) {
-        TfLiteOpenVINODelegateOptions options = TfLiteOpenVINODelegateOptionsDefault();
-        std::vector<const char*> argv;
-        int argc = num_options + 1;
-        argv.reserve(num_options + 1);
-        std::vector<std::string> option_args;
-        option_args.reserve(num_options);
-        for (int i = 0; i < num_options; i++) {
-          option_args.emplace_back("--");
-          option_args.rbegin()->append(options_keys[i]);
-          option_args.rbegin()->append("=");
-          option_args.rbegin()->append(options_values[i]);
-          argv.push_back(option_args.rbegin()->c_str());  
-        }
+TfLiteDelegate *CreateOVDelegateFromOptions(char **options_keys,
+                                            char **options_values,
+                                            size_t num_options) {
+  TfLiteOpenVINODelegateOptions options =
+      TfLiteOpenVINODelegateOptionsDefault();
+  std::vector<const char *> argv;
+  int argc = num_options + 1;
+  argv.reserve(num_options + 1);
+  std::vector<std::string> option_args;
+  option_args.reserve(num_options);
+  for (int i = 0; i < num_options; i++) {
+    option_args.emplace_back("--");
+    option_args.rbegin()->append(options_keys[i]);
+    option_args.rbegin()->append("=");
+    option_args.rbegin()->append(options_values[i]);
+    argv.push_back(option_args.rbegin()->c_str());
+  }
 
-        constexpr char kDebugLevel[] = "debug_level";
-        constexpr char kPluginsPath[] = "plugins_path";
-        constexpr char kDeviceType[] = "device_type";
+  constexpr char kDebugLevel[] = "debug_level";
+  constexpr char kPluginsPath[] = "plugins_path";
+  constexpr char kDeviceType[] = "device_type";
 
   std::vector<tflite::Flag> flag_list = {
       tflite::Flag::CreateFlag(kDebugLevel, &options.debug_level,
@@ -41,8 +42,8 @@ TfLiteDelegate* CreateOVDelegateFromOptions(char** options_keys,
     return nullptr;
   }
 
-//  TFLITE_LOG(INFO) << "OpenVINO delegate: debug_level set to "
-//                   << options.debug_level << ".";
+  //  TFLITE_LOG(INFO) << "OpenVINO delegate: debug_level set to "
+  //                   << options.debug_level << ".";
   /* TFLITE_LOG(INFO) << "OpenVINO delegate: plugins_path set to "
                    << options.plugins_path << ".";
   TFLITE_LOG(INFO) << "OpenVINO delegate: device_type set to "
@@ -51,14 +52,14 @@ TfLiteDelegate* CreateOVDelegateFromOptions(char** options_keys,
   return TfLiteCreateOpenVINODelegate(&options);
 }
 
-TFL_CAPI_EXPORT TfLiteDelegate* tflite_plugin_create_delegate(
-    char** option_keys, char** option_values, size_t num_options,
-    void (&report_error)(const char*)) {
-//        TFLITE_LOG(INFO) << "In tfl_plugin_create" << "\n";
-        return CreateOVDelegateFromOptions(option_keys, option_values,
-                            num_options);
+TFL_CAPI_EXPORT TfLiteDelegate *
+tflite_plugin_create_delegate(char **option_keys, char **option_values,
+                              size_t num_options,
+                              void (&report_error)(const char *)) {
+  //        TFLITE_LOG(INFO) << "In tfl_plugin_create" << "\n";
+  return CreateOVDelegateFromOptions(option_keys, option_values, num_options);
 }
 
-TFL_CAPI_EXPORT void tflite_plugin_destroy_delegate(TfLiteDelegate* delegate) {
+TFL_CAPI_EXPORT void tflite_plugin_destroy_delegate(TfLiteDelegate *delegate) {
   TfLiteDeleteOpenVINODelegate(delegate);
 }
