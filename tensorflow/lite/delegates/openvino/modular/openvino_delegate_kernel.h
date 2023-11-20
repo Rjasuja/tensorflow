@@ -20,6 +20,7 @@ limitations under the License.
 
 #include "NgraphNodes.h"
 #include "ov_utils.h"
+#include "ie_manager.h"
 #include "tensorflow/lite/builtin_ops.h"
 #include "tensorflow/lite/delegates/utils/simple_delegate.h"
 #include "tensorflow/lite/tools/logging.h"
@@ -35,6 +36,9 @@ public:
   TfLiteStatus Prepare(TfLiteContext *context, TfLiteNode *node) override;
 
   TfLiteStatus Eval(TfLiteContext *context, TfLiteNode *node) override;
+private:
+  GraphManager* graphManager;
+  IEManager* ieManager;
 };
 
 } // namespace openvinodelegate
