@@ -31,11 +31,13 @@ TfLiteStatus OpenVINODelegateManager::createGraphfromTfLite(TfLiteContext* conte
             const void* data = nullptr;
             if (context->tensors[t].allocation_type == kTfLiteMmapRo) {
                 data = context->tensors[t].data.raw_const;
-                openvino_graph_builder->createConstNode(context, t);
+                if (openvino_graph_builder->createConstNode(context, t) != kTfLiteOk)
+                    return kTfLiteError;
             }
             if (inputs.count(t) != 0) {
                 if (data == nullptr) {
-                    openvino_graph_builder->addInputParams(context, t);
+                    if (openvino_graph_builder->addInputParams(context, t) != kTfLiteOk)
+                        return kTfLiteError;
                     compute_inputs.push_back(t);
                 }
             }
@@ -48,7 +50,6 @@ TfLiteStatus OpenVINODelegateManager::createGraphfromTfLite(TfLiteContext* conte
     openvino_graph_builder->updateResultNodes(outputs);
     std::shared_ptr<ov::Model> model = std::make_shared<ov::Model>(
         openvino_graph_builder->getResultNodes(), openvino_graph_builder->getInputParams());
-    ov::CompiledModel compiled_model;
     // TODO: get device string from flags
     std::string deviceStr = "CPU";
     if (model) {

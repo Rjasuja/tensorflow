@@ -9,10 +9,15 @@
 #include "tensorflow/lite/delegates/openvino/operations/openvino_node_manager.h"
 #include "tensorflow/lite/tools/logging.h"
 
+#define TFLITE_INPUT_NODE_1 0
+#define TFLITE_INPUT_NODE_2 1
+#define TFLITE_FILTER_NODE 1
+#define TFLITE_BIAS_NODE 2
+
 namespace tflite {
 namespace openvinodelegate {
 
-class OperationBuilder {
+class OperationsBase {
 public:
     void UpdateNodeInfo(void* data, int size, void* builtin_data) {
         tensor_indices = (int*)data;

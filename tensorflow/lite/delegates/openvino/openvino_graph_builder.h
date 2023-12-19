@@ -20,7 +20,7 @@ class OpenVINOGraphBuilder {
 public:
     OpenVINOGraphBuilder() { nodeManager = std::make_shared<NodeManager>(); }
 
-    void addInputParams(const TfLiteContext* context, const int index) {
+    TfLiteStatus addInputParams(const TfLiteContext* context, const int index) {
         const TfLiteTensor t = context->tensors[index];
         std::vector<size_t> dims(t.dims->size);
         for (int i = 0; i < t.dims->size; i++) {
@@ -28,12 +28,16 @@ public:
         }
         auto input = std::make_shared<ov::opset3::Parameter>(ov::element::f32,
                                                              ov::Shape(dims.begin(), dims.end()));
-        if (input == NULL) TFLITE_LOG(INFO) << "addInputParams input node is null\n";
+        if (input == NULL) {
+            TFLITE_LOG(INFO) << "addInputParams input node is null\n";
+            return kTfLiteError;
+        }
         nodeManager->setOutputAtOperandIndex(index, input);
         inputParams.push_back(input);
+        return kTfLiteOk;
     }
 
-    void createConstNode(const TfLiteContext* context, const int index) {
+    TfLiteStatus createConstNode(const TfLiteContext* context, const int index) {
         const TfLiteTensor t = context->tensors[index];
         std::vector<size_t> dims(t.dims->size);
         for (int i = 0; i < t.dims->size; i++) {
@@ -42,7 +46,12 @@ public:
         const void* data = (const void*)t.data.raw_const;
         auto constNode = std::make_shared<ov::opset8::Constant>(
             ov::element::f32, ov::Shape(dims.begin(), dims.end()), data);
+        if (constNode == NULL) {
+            TFLITE_LOG(INFO) << "Error in creating const node\n";
+            return kTfLiteError;
+        }
         nodeManager->setOutputAtOperandIndex(index, constNode);
+        return kTfLiteOk;
     }
 
     void updateResultNodes(std::vector<int> outputs) {
@@ -57,8 +66,8 @@ public:
 
     TfLiteStatus createNodeFromTfLiteOp(int node_id, TfLiteRegistration* registration,
                                         TfLiteNode* node, TfLiteContext* context);
-    std::shared_ptr<OperationBuilder> createOpClass(int operationIndex,
-                                                    TfLiteRegistration* registration);
+    std::shared_ptr<OperationsBase> createOpClass(int operationIndex,
+                                                  TfLiteRegistration* registration);
     std::vector<std::shared_ptr<ov::opset3::Parameter>> inputParams;
     std::vector<std::shared_ptr<ov::Node>> resultNodes;
 

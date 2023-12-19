@@ -5,7 +5,7 @@ namespace openvinodelegate {
 
 std::shared_ptr<ov::Node> Conv2D::createNode() {
     const TfLiteConvParams* conv2dParams = (TfLiteConvParams*)GetBuiltinData();
-    std::vector<int> filter_dims = GetDims(tensor_indices[1]);
+    std::vector<int> filter_dims = GetDims(tensor_indices[TFLITE_FILTER_NODE]);
     std::vector<size_t> strides;
     std::vector<std::ptrdiff_t> padding_begin, padding_end;
     std::vector<size_t> dilations;
@@ -37,9 +37,9 @@ std::shared_ptr<ov::Node> Conv2D::createNode() {
     padding_end = {padding_bottom, padding_right};
     dilations = {(size_t)conv2dParams->dilation_height_factor,
                  (size_t)conv2dParams->dilation_width_factor};
-    auto input_node = getInputNode(tensor_indices[0]);
-    auto filter_node = getInputNode(tensor_indices[1]);
-    auto bias_node = getInputNode(tensor_indices[2]);
+    auto input_node = getInputNode(tensor_indices[TFLITE_INPUT_NODE_1]);
+    auto filter_node = getInputNode(tensor_indices[TFLITE_FILTER_NODE]);
+    auto bias_node = getInputNode(tensor_indices[TFLITE_BIAS_NODE]);
 
     auto convNode = std::make_shared<ov::opset8::Convolution>(
         input_node, filter_node, ov::Strides(strides), ov::CoordinateDiff(padding_begin),

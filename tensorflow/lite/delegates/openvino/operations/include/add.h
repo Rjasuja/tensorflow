@@ -6,7 +6,7 @@
 namespace tflite {
 namespace openvinodelegate {
 
-class Add : public OperationBuilder {
+class Add : public OperationsBase {
 public:
     Add(int operationIndex) {}
     std::shared_ptr<ov::Node> createNode() override;

@@ -13,10 +13,11 @@ TfLiteStatus OpenVINOGraphBuilder::createNodeFromTfLiteOp(int node_id,
     operationNode->SetContext(context);
     operationNode->UpdateNodeInfo(node->inputs->data, node->inputs->size, node->builtin_data);
     resultNode = operationNode->createNode();
+    if (resultNode == nullptr) return kTfLiteError;
     nodeManager->setOutputAtOperandIndex(node->outputs->data[0], resultNode);
     return kTfLiteOk;
 }
-std::shared_ptr<OperationBuilder> OpenVINOGraphBuilder::createOpClass(
+std::shared_ptr<OperationsBase> OpenVINOGraphBuilder::createOpClass(
     int operationIndex, TfLiteRegistration* registration) {
     switch (registration->builtin_code) {
         case kTfLiteBuiltinAdd: {

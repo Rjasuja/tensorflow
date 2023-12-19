@@ -6,7 +6,7 @@
 namespace tflite {
 namespace openvinodelegate {
 
-class Conv2D : public OperationBuilder {
+class Conv2D : public OperationsBase {
 public:
     Conv2D(int operationIndex) {}
     std::shared_ptr<ov::Node> createNode() override;

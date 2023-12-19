@@ -38,8 +38,8 @@ private:
     std::shared_ptr<ov::Model> model;
     ov::CompiledModel compiled_model;
     std::string deviceStr = "CPU";
-    std::vector<int> compute_inputs;
-    std::vector<int> outputs;
+    std::vector<int> compute_inputs = {};
+    std::vector<int> outputs = {};
 };
 }  // namespace openvinodelegate
 }  // namespace tflite

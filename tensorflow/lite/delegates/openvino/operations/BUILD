@@ -6,7 +6,7 @@ package(
 )
 
 cc_library(
-    name = "operation_builder",
+    name = "operations_base",
     srcs = [
         "src/add.cc",
 	"src/conv2d.cc",
@@ -34,4 +34,3 @@ cc_library(
         "@intel_openvino//:openvino",
     ],
 )
-
