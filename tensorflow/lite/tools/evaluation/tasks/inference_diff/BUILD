@@ -12,7 +12,7 @@ package(
 cc_library(
     name = "run_eval_lib",
     srcs = ["run_eval.cc"],
-    copts = tflite_copts(),
+    copts = tflite_copts() + ['-fexceptions'],
     linkopts = task_linkopts(),
     deps = [
         "//tensorflow/lite/core/c:common",
@@ -30,7 +30,7 @@ cc_library(
 
 cc_binary(
     name = "run_eval",
-    copts = tflite_copts(),
+    copts = tflite_copts() + ['-fexceptions'],
     linkopts = task_linkopts(),
     deps = [
         ":run_eval_lib",

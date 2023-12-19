@@ -104,7 +104,7 @@ cc_library(
     name = "tflite_inference_stage",
     srcs = ["tflite_inference_stage.cc"],
     hdrs = ["tflite_inference_stage.h"],
-    copts = tflite_copts(),
+    copts = tflite_copts() + ['-fexceptions'],
     deps = [
         "//tensorflow/core:tflite_portable_logging",
         "//tensorflow/lite:framework",
@@ -163,7 +163,7 @@ cc_library(
     name = "inference_profiler_stage",
     srcs = ["inference_profiler_stage.cc"],
     hdrs = ["inference_profiler_stage.h"],
-    copts = tflite_copts(),
+    copts = tflite_copts() + ['-fexceptions'],
     deps = [
         ":tflite_inference_stage",
         "//tensorflow/core:tflite_portable_logging",

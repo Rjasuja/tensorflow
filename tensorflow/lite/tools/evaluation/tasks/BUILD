@@ -18,7 +18,7 @@ cc_library(
     name = "task_executor",
     srcs = ["task_executor.cc"],
     hdrs = ["task_executor.h"],
-    copts = tflite_copts(),
+    copts = tflite_copts() + ['-fexceptions'],
     linkopts = task_linkopts(),
     deps = [
         "//tensorflow/lite/tools:command_line_flags",
@@ -32,7 +32,7 @@ cc_library(
 cc_library(
     name = "task_executor_main",
     srcs = ["task_executor_main.cc"],
-    copts = tflite_copts(),
+    copts = tflite_copts() + ['-fexceptions'],
     linkopts = task_linkopts(),
     deps = [
         ":task_executor",

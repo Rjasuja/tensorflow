@@ -1314,6 +1314,20 @@ cc_library(
     compatible_with = get_compatible_with_portable(),
     deps = ["//tensorflow/lite/core/api:error_reporter"],
 )
+# Link this library to inject OpenVINO delegate to TFLite runtime automatically
+# by utilizing the weak symbols if they're supported by the platform.
+cc_library(
+    name = "tflite_with_openvino",
+    srcs = ["tflite_with_openvino.cc"],
+    copts = tflite_copts() + tflite_copts_warnings(),
+    linkstatic = True,
+    deps = [
+        "//tensorflow/lite/c:common",
+        "//tensorflow/lite/delegates/openvino:openvino_delegate",
+    ],
+    alwayslink = 1,
+)
+
 
 # Shared lib target for convenience, pulls in the core runtime and builtin ops.
 # Note: This target is not yet finalized, and the exact set of exported (C/C++)
